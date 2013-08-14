@@ -47,9 +47,12 @@ class Mostacho {
 		return preg_replace_callback("/\{([a-zA-Z_]+)\}/", function($matches) {
 			global $keywords;
 			if (isset($keywords[$matches[1]])) {
+				if (is_callable($keywords[$matches[1]])) {
+					return call_user_func($keywords[$matches[1]]);
+				}
 				return $keywords[$matches[1]];
 			}
-			return $matches[1];
+			return '{' . $matches[1] . '}';
 		}, $content);
 		unset($GLOBALS['keywords']); // TODO: unset is never run... function returns first!
 	}

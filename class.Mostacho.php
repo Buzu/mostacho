@@ -33,6 +33,10 @@ class Mostacho {
 	}
 
 	public function performReplace($content) {
+		// Get around php 5.3 that doesn't keep $this
+		// in the callback of preg_replace
+		global $keywords;
+		$keywords = $this->keywords;
 		// Using arrays on the pattern and replacement
 		// Can act weird in the off chance that the
 		// keyword is defined in different order
@@ -41,11 +45,13 @@ class Mostacho {
 		// and defined keyword and definition as an indexed array
 		// see http://us3.php.net/manual/en/function.preg-replace.php
 		return preg_replace_callback("/\{([a-zA-Z_]+)\}/", function($matches) {
-			if (isset($this->keywords[$matches[1]])) {
-				return $this->keywords[$matches[1]];
+			global $keywords;
+			if (isset($keywords[$matches[1]])) {
+				return $keywords[$matches[1]];
 			}
 			return $matches[1];
 		}, $content);
+		unset($GLOBALS['keywords']); // TODO: unset is never run... function returns first!
 	}
 }
 ?>
